@@ -146,7 +146,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\glad\glad.c" />
-    <ClCompile Include="TriagleDemo.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="TriagleGL.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TriagleGL.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
