@@ -439,6 +439,11 @@ int TraigleIndex::exc2Render(GLFWwindow* window, unsigned int shaderProg, unsign
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glUseProgram(secShaderPro);
+		float timeValue = glfwGetTime();
+		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+		int vertexColorLocation = glGetUniformLocation(secShaderPro, "ourColor");
+		glUseProgram(secShaderPro);
+		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 		glBindVertexArray(VAO[1]);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -464,9 +469,10 @@ int TraigleIndex::initShader(unsigned int& shaderPro)
 		"}\0";
 	const char* fragmentShaderSource = "#version 330 core\n"
 		"out vec4 FragColor;\n"
+		"uniform vec4 ourColor;\n"
 		"void main()\n"
 		"{\n"
-		"   FragColor = vec4(255.0f, 204.0f, 0.0f, 255.0f);\n"
+		"   FragColor = ourColor;\n"
 		"}\n\0";
 
 
