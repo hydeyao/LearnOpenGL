@@ -79,7 +79,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)include;$(IncludePath)</IncludePath>
-    <SourcePath>$(SolutionDir)lib\Debug;$(SourcePath)</SourcePath>
+    <SourcePath>$(SourcePath)</SourcePath>
+    <LibraryPath>$(SolutionDir)lib\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -149,10 +150,18 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderTriangle.cpp" />
+    <ClCompile Include="stb_img.cpp" />
+    <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\stb_image.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderTriangle.h" />
+    <ClInclude Include="Texture.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\resourses\shader.fs" />
+    <None Include="..\..\resourses\shader.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

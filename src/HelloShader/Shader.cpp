@@ -1,8 +1,11 @@
 #include "Shader.h"
 
-Shader::Shader(const char* vertexPath, const char* fregmentPath)
+Shader::Shader(const char* vertexPath, const char* fregmentPath):ID(0)
 {
-	ID = 0;
+	std::string strVertexCode, strFragmentCode;
+	readShaderFromFile(vertexPath, fregmentPath, strVertexCode, strFragmentCode);
+	buildShaderProgram(strVertexCode, strFragmentCode, ID);
+
 }
 
 int Shader::readShaderFromFile(const char* vertexPath, const char* fregmentPath, std::string& vertexCode, std::string& fregmentCode)
@@ -16,7 +19,7 @@ int Shader::readShaderFromFile(const char* vertexPath, const char* fregmentPath,
 	try
 	{
 		vShaderFile.open(vertexPath);
-		vShaderFile.open(fregmentPath);
+		fShaderFile.open(fregmentPath);
 		std::stringstream ssVertex, ssFregment;
 		ssVertex << vShaderFile.rdbuf();
 		ssFregment << fShaderFile.rdbuf();
@@ -27,6 +30,7 @@ int Shader::readShaderFromFile(const char* vertexPath, const char* fregmentPath,
 	}
 	catch (std::ifstream::failure e)
 	{
+		std::cout << e.what() << std::endl;
 		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
 	}
 	return 0;
@@ -65,7 +69,41 @@ int Shader::buildShaderProgram(std::string vertexCode, std::string frementCode, 
 	}
 
 	//link 
+	shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram, uiVertex);
+	glAttachShader(shaderProgram, uiFragmet);
+	glLinkProgram(shaderProgram);
 
+	glGetProgramiv(ID, GL_LINK_STATUS, &success);
+	if (!success)
+	{
+		glGetProgramInfoLog(ID, 512, NULL, clog);
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << clog << std::endl;
+	}
+
+	// 删除着色器，它们已经链接到我们的程序中了，已经不再需要了
+	glDeleteShader(uiVertex);
+	glDeleteShader(uiFragmet);
 	return 0;
+}
+
+void Shader::use()
+{
+	glUseProgram(ID);
+}
+
+void Shader::setParam(const std::string& name, bool value) const
+{
+	glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
+}
+
+void Shader::setParam(const std::string& name, int value) const
+{
+	glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+}
+
+void Shader::setParam(const std::string& name, float value) const
+{
+	glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
 

@@ -1,5 +1,5 @@
 #include "ShaderTriangle.h"
-
+#include "Shader.h"
 void framebuffer_size_cb(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 };
@@ -100,8 +100,7 @@ int ShaderTriangle::showTriangle()
 		return -1;
 	}
 
-	unsigned int shaderProgram;
-	initShader(shaderProgram);
+	Shader shaderObj("D:\\GitRep\\LearnOpenGL\\resourses\\shader.vs", "D:\\GitRep\\LearnOpenGL\\resourses\\shader.fs");
 
 	//…Ë÷√∂•µ„◊¯±Í
 	float vertices[] = {
@@ -127,7 +126,7 @@ int ShaderTriangle::showTriangle()
 	//…Ë÷√—’…´ Ù–‘
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	renderLoop(window, shaderProgram, VAO, VBO);
+	renderLoop(window, shaderObj, VAO, VBO);
 
 	return 0;
 }
@@ -157,6 +156,36 @@ int ShaderTriangle::renderLoop(GLFWwindow* window, unsigned int shaderProg, unsi
 	glDeleteProgram(shaderProg);
 
 	glfwTerminate();
+	return 0;
+}
+
+int ShaderTriangle::renderLoop(GLFWwindow* window, Shader shader, unsigned int VAO, unsigned int VBO, int drawType)
+{
+	//‰÷»æ
+	while (!glfwWindowShouldClose(window))
+	{
+		pressInput(window);
+
+		//‰÷»æ
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		//draw 
+		shader.setParam("xOffset", -0.5f);
+		shader.use();
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteProgram(shader.ID);
+
+	glfwTerminate();
+	return 0;
 	return 0;
 }
 
