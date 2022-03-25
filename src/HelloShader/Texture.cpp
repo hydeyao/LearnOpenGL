@@ -9,7 +9,15 @@ TextureShow::TextureShow() :m_VAO(0), m_VBO(0), m_EBO(0), m_Texture(0)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     m_window = glfwCreateWindow(m_width, m_height, "Texture", NULL, NULL);
+
+    glfwMakeContextCurrent(m_window);
+    glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+    }
     msp_shader.reset(new Shader(VERTEX_SHADER_RESOURSE_PATH, FRAGMENT_SHADER_RESOURSE_PATH));
+    msp_texture.reset(new Texture(TEXTURE_RESOURSE_PATH));
 
 }
 
@@ -30,18 +38,26 @@ int TextureShow::showWindow()
         return -1;
     }
 
-    glfwMakeContextCurrent(m_window);
-    glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
 
+
+    float vertices[] = {
+        // positions          // colors           // texture coords
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
+    };
+    unsigned int indices[] = {
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
+    setVertexAtrrib(m_VAO, m_VBO, m_EBO, vertices, indices);
+    render(m_window, msp_shader.get(), m_VAO, msp_texture.get());
+    glfwTerminate();
     return 0;
 }
 
-int TextureShow::setVertexAtrrib(unsigned int VAO, unsigned int VBO, unsigned int EBO, float* vertices, float* indices)
+int TextureShow::setVertexAtrrib(unsigned int& VAO, unsigned int& VBO, unsigned int& EBO, float* vertices, unsigned int* indices)
 {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -67,7 +83,7 @@ int TextureShow::setVertexAtrrib(unsigned int VAO, unsigned int VBO, unsigned in
     return 0;
 }
 
-int TextureShow::render(GLFWwindow* window, Shader shader, unsigned int VAO, unsigned int texture)
+int TextureShow::render(GLFWwindow* window, Shader* shader, unsigned int VAO, Texture* texture)
 {
     while (!glfwWindowShouldClose(window))
     {
@@ -81,10 +97,10 @@ int TextureShow::render(GLFWwindow* window, Shader shader, unsigned int VAO, uns
         glClear(GL_COLOR_BUFFER_BIT);
 
         // bind Texture
-        glBindTexture(GL_TEXTURE_2D, texture);
+        glBindTexture(GL_TEXTURE_2D, texture->TEXTURE_ID);
 
         // render container
-        shader.use();
+        shader->use();
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
@@ -96,6 +112,51 @@ int TextureShow::render(GLFWwindow* window, Shader shader, unsigned int VAO, uns
     return 0;
 }
 
-Texture::Texture(const char* texturePath)
+Texture::Texture(const char* texturePath):m_nwidth(0), m_nheight(0), m_nrchannels(0), mucTextualData(NULL), TEXTURE_ID(0)
 {
+    initTextrue();
+    loadTextual(texturePath);
+}
+
+Texture::~Texture()
+{
+    stbi_image_free(mucTextualData);
+}
+
+int Texture::bindTexture()
+{
+    glBindTexture(GL_TEXTURE_2D, TEXTURE_ID);
+    return 0;
+}
+
+int Texture::loadTextual(const char* texturePath)
+{
+    mucTextualData = stbi_load(texturePath, &m_nwidth, &m_nheight, &m_nrchannels, 0);
+    if (mucTextualData)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_nwidth, m_nheight, 0, GL_RGB, GL_UNSIGNED_BYTE, mucTextualData);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+        return -1;
+    }
+    return 0;
+}
+
+int Texture::initTextrue()
+{
+    unsigned int id_tex;
+    glGenTextures(1, &id_tex);
+    glBindTexture(GL_TEXTURE_2D, id_tex); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load image, create texture and generate mipmaps
+    TEXTURE_ID = id_tex;
+    return 0;
 }
