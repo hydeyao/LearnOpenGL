@@ -181,7 +181,7 @@ int Texture::loadTextual(const char* texturePath)
     if (mucTextualData)
     {
     
-        if (m_texFormat == TP_RGBA)
+        if (m_texFormat == TEXTURE_FORMAT::TP_RGBA)
         {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_nwidth, m_nheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, mucTextualData);
         }

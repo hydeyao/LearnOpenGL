@@ -23,19 +23,18 @@ private:
 	int m_nwidth, m_nheight, m_nrchannels;
 	unsigned char* mucTextualData;
 	int m_flipType;
-	int m_texFormat;
-
-	enum TEXTURE_FORMAT
+	
+	enum class TEXTURE_FORMAT
 	{
 		TP_RGB = 0,
 		TP_RGBA = 1
 	};
-
+	TEXTURE_FORMAT m_texFormat;
 private:
 	int loadTextual(const char* texturePath);
 	int initTextrue();
 
-	__inline int getTexFormat(std::string texPath) { return ("png" == texPath.substr(texPath.length() - 3, 3)) ? TP_RGBA : TP_RGB; }
+	__inline TEXTURE_FORMAT getTexFormat(std::string texPath) { return ("png" == texPath.substr(texPath.length() - 3, 3)) ? TEXTURE_FORMAT::TP_RGB : TEXTURE_FORMAT::TP_RGB; }
 };
 
 class TextureShow
