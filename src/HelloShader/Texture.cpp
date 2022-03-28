@@ -37,8 +37,26 @@ int TextureShow::showWindow()
         glfwTerminate();
         return -1;
     }
+    setVertexAtrrib(m_VAO, m_VBO, m_EBO);
 
+    Texture *Tex_box = new Texture(TEXTURE_RESOURSE_PATH,1);
+    Texture *Tex_face = new Texture(TEXTURE_FACE_RESOURSE_PATH,2);
 
+    unsigned int texarr[] = {
+        Tex_box->TEXTURE_ID,
+        Tex_face->TEXTURE_ID
+    };
+    msp_shader->use();
+    glUniform1i(glGetUniformLocation(msp_shader->ID, "texture1"), 0);
+    msp_shader->setParam("texture2", 1);
+    render(m_window, msp_shader.get(), m_VAO, texarr);
+
+    glfwTerminate();
+    return 0;
+}
+
+int TextureShow::setVertexAtrrib(unsigned int& VAO, unsigned int& VBO, unsigned int& EBO)
+{
 
     float vertices[] = {
         // positions          // colors           // texture coords
@@ -51,14 +69,7 @@ int TextureShow::showWindow()
         0, 1, 3, // first triangle
         1, 2, 3  // second triangle
     };
-    setVertexAtrrib(m_VAO, m_VBO, m_EBO, vertices, indices);
-    render(m_window, msp_shader.get(), m_VAO, msp_texture.get());
-    glfwTerminate();
-    return 0;
-}
 
-int TextureShow::setVertexAtrrib(unsigned int& VAO, unsigned int& VBO, unsigned int& EBO, float* vertices, unsigned int* indices)
-{
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -112,8 +123,43 @@ int TextureShow::render(GLFWwindow* window, Shader* shader, unsigned int VAO, Te
     return 0;
 }
 
-Texture::Texture(const char* texturePath):m_nwidth(0), m_nheight(0), m_nrchannels(0), mucTextualData(NULL), TEXTURE_ID(0)
+int TextureShow::render(GLFWwindow* window, Shader* shader, unsigned int VAO, unsigned int texarr[2])
 {
+    
+    while (!glfwWindowShouldClose(window))
+    {
+        // input
+        // -----
+        processInput(window);
+
+        // render
+        // ------
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // bind Texture
+        //glBindTexture(GL_TEXTURE_2D, texture->TEXTURE_ID);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texarr[0]);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D,texarr[1]);
+
+        shader->use();
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+        // -------------------------------------------------------------------------------
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+    return 0;
+}
+
+Texture::Texture(const char* texturePath,int fliptype):m_nwidth(0), m_nheight(0), m_nrchannels(0), mucTextualData(NULL), TEXTURE_ID(0), m_flipType(fliptype)
+{
+    m_texFormat = getTexFormat(texturePath);
     initTextrue();
     loadTextual(texturePath);
 }
@@ -134,7 +180,16 @@ int Texture::loadTextual(const char* texturePath)
     mucTextualData = stbi_load(texturePath, &m_nwidth, &m_nheight, &m_nrchannels, 0);
     if (mucTextualData)
     {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_nwidth, m_nheight, 0, GL_RGB, GL_UNSIGNED_BYTE, mucTextualData);
+    
+        if (m_texFormat == TP_RGBA)
+        {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_nwidth, m_nheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, mucTextualData);
+        }
+        else
+        {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_nwidth, m_nheight, 0, GL_RGB, GL_UNSIGNED_BYTE, mucTextualData);
+        }
+        
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else
@@ -145,6 +200,7 @@ int Texture::loadTextual(const char* texturePath)
     return 0;
 }
 
+
 int Texture::initTextrue()
 {
     unsigned int id_tex;
@@ -154,8 +210,13 @@ int Texture::initTextrue()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    if (m_flipType)
+    {
+        stbi_set_flip_vertically_on_load(true);
+    }
     // load image, create texture and generate mipmaps
     TEXTURE_ID = id_tex;
     return 0;
