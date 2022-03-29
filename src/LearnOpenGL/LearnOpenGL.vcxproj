@@ -158,6 +158,10 @@
     <ClCompile Include="..\..\glad\glad.c" />
     <ClCompile Include="HelloWindow.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\resourses\shader.fs" />
+    <None Include="..\..\resourses\shader.vs" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

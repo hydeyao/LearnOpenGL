@@ -27,6 +27,9 @@
     <ClInclude Include="ShowMainWindow.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Shader.cpp">
@@ -47,5 +50,16 @@
     <ClCompile Include="ShowMainWindow.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\resourses\corShader.vs">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\..\resourses\corShader.fs">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
 </Project>

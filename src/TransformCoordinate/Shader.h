@@ -5,6 +5,8 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <glm/common.hpp>
+#include <glm/glm.hpp>
 
 #define IN
 #define OUT
@@ -25,6 +27,7 @@ public:
 	void setParam(const std::string& name, bool value) const;
 	void setParam(const std::string& name, int value) const;
 	void setParam(const std::string& name, float value) const;
+	void setParam(const std::string& name, glm::mat4 value) const;
 
 };
 

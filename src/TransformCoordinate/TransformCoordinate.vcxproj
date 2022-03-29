@@ -146,17 +146,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\stb_image.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShowMainWindow.h" />
     <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\glad\glad.c" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShowMainWindow.cpp" />
     <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="Texture.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\resourses\corShader.fs" />
+    <None Include="..\..\resourses\corShader.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
